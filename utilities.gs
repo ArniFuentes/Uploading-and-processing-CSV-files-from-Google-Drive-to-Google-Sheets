@@ -25,17 +25,6 @@ function readCsvFile(file, delimiters) {
   return [];
 }
 
-function processCsvData(rows, newProperties, prices) {
-  const headers = renameHeaders(rows[0], newProperties);
-  const records = buildRecords(rows, headers);
-  const stores = extractStores(headers);
-
-  const finalRows = buildFinalRows(records, stores, prices);
-
-  const uniqueRows = removeDuplicates2D(finalRows);
-  return uniqueRows;
-}
-
 function buildRecords(rows, headers) {
   const data = rows.slice(1);
   return data.map((row) => {
@@ -51,7 +40,7 @@ function extractStores(headers) {
     .map((h) => h.replace("Sku ", ""));
 }
 
-function buildFinalRows(records, stores, prices) {
+function buildChangedDataStructure(records, stores, prices) {
   const result = [];
   for (const r of records) {
     for (const store of stores) {
@@ -81,11 +70,11 @@ function buildOutput(rows, headers) {
   return [headers, ...rows];
 }
 
-function renameHeaders(headers, mapping) {
+function renameOriginalHeaders(headers, mapping) {
   return headers.map((key) => mapping[key] || key);
 }
 
-function removeDuplicates2D(arr) {
+function removeDuplicates(arr) {
   const seen = new Set();
   const unique = [];
 

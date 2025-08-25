@@ -1,6 +1,5 @@
 function main() {
   const ss = SpreadsheetApp.openById(sheetId);
-
   const files = getCsvFilesFromFolder(folderId);
 
   files.forEach((file) => {
@@ -10,15 +9,28 @@ function main() {
 
     if (!data.length) return;
 
-    const transformedData = processCsvData(data, NEW_PROPERTIES, PRICES);
+    const originalHeaders = data[0];
+    const originalHeadersRenamed = renameOriginalHeaders(originalHeaders, NEW_PROPERTIES);
 
-    const dataReady = buildOutput(transformedData, headers);
+    const stores = extractStores(originalHeadersRenamed);
+
+    const dataHeadersChanged = buildRecords(data, originalHeadersRenamed);
+
+    const dataStructureChanged = buildChangedDataStructure(dataHeadersChanged, stores,PRICES);
+
+    const finalData = removeDuplicates(dataStructureChanged);
+    const finalDataPlusFinalHeaders = buildOutput(finalData, finalHeaders);
 
     const sheetName = file.getName();
     const sheet = ss.insertSheet(sheetName);
 
     sheet
-      .getRange(1, 1, dataReady.length, dataReady[0].length)
-      .setValues(dataReady);
+      .getRange(
+        1,
+        1,
+        finalDataPlusFinalHeaders.length,
+        finalDataPlusFinalHeaders[0].length
+      )
+      .setValues(finalDataPlusFinalHeaders);
   });
 }

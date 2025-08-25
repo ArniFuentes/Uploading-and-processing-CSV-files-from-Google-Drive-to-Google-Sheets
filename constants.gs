@@ -19,7 +19,7 @@ const PRICES = [
   ["Card price", "Card price {}"],
 ];
 
-const headers = [
+const finalHeaders = [
   "SKU",
   "Category",
   "Brand",
