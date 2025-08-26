@@ -9,28 +9,13 @@ function main() {
 
     if (!data.length) return;
 
-    const originalHeaders = data[0];
-    const originalHeadersRenamed = renameOriginalHeaders(originalHeaders, NEW_PROPERTIES);
-
-    const stores = extractStores(originalHeadersRenamed);
-
-    const dataHeadersChanged = buildRecords(data, originalHeadersRenamed);
-
-    const dataStructureChanged = buildChangedDataStructure(dataHeadersChanged, stores,PRICES);
-
-    const finalData = removeDuplicates(dataStructureChanged);
-    const finalDataPlusFinalHeaders = buildOutput(finalData, finalHeaders);
+    const processedCsv = processCsv(data);
 
     const sheetName = file.getName();
     const sheet = ss.insertSheet(sheetName);
 
     sheet
-      .getRange(
-        1,
-        1,
-        finalDataPlusFinalHeaders.length,
-        finalDataPlusFinalHeaders[0].length
-      )
-      .setValues(finalDataPlusFinalHeaders);
+      .getRange(1, 1, processedCsv.length, processedCsv[0].length)
+      .setValues(processedCsv);
   });
 }

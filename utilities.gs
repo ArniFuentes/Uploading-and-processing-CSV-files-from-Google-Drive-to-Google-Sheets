@@ -25,6 +25,16 @@ function readCsvFile(file, delimiters) {
   return [];
 }
 
+function processCsv(data) {
+  const originalHeadersRenamed = renameOriginalHeaders(data[0]);
+  const stores = extractStores(originalHeadersRenamed);
+  const dataHeadersChanged = buildRecords(data, originalHeadersRenamed);
+  const dataStructureChanged = buildChangedDataStructure(dataHeadersChanged, stores);
+  const finalData = removeDuplicates(dataStructureChanged);
+  const finalDataPlusFinalHeaders = buildOutput(finalData);
+  return finalDataPlusFinalHeaders;
+}
+
 function buildRecords(rows, headers) {
   const data = rows.slice(1);
   return data.map((row) => {
@@ -40,7 +50,11 @@ function extractStores(headers) {
     .map((h) => h.replace("Sku ", ""));
 }
 
-function buildChangedDataStructure(records, stores, prices) {
+function buildChangedDataStructure(records, stores) {
+  const prices = [
+    ["Normal price", "Normal price {}"],
+    ["Card price", "Card price {}"],
+  ];
   const result = [];
   for (const r of records) {
     for (const store of stores) {
@@ -65,13 +79,32 @@ function buildChangedDataStructure(records, stores, prices) {
   return result;
 }
 
-function buildOutput(rows, headers) {
-  if (!rows || !headers) throw new Error("missing arguments");
-  return [headers, ...rows];
+function buildOutput(rows) {
+  const finalHeaders = [
+    "SKU",
+    "Category",
+    "Brand",
+    "Name",
+    "Price",
+    "Price Type",
+    "Stock",
+    "Store",
+    "Date",
+  ];
+
+  if (!rows) throw new Error("missing arguments");
+  return [finalHeaders, ...rows];
 }
 
-function renameOriginalHeaders(headers, mapping) {
-  return headers.map((key) => mapping[key] || key);
+function renameOriginalHeaders(headers) {
+  const newProperties = {
+    "Normal price": "Normal price Store A",
+    "Card price": "Card price Store A",
+    SKU: "Sku Store A",
+    URL: "URL Store A",
+    "Has stock": "Stock Store A",
+  };
+  return headers.map((key) => newProperties[key] || key);
 }
 
 function removeDuplicates(arr) {
